@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 引用db.properties配置文件 ,注意先后顺序 -->
+	<properties resource="db.properties" />
+	<settings>
+		<!-- 开启全局性设置懒加载 -->
+		<setting name="lazyLoadingEnabled" value="true" />
+		<!-- 开启按需加载 -->
+		<setting name="aggressiveLazyLoading" value="false" />
+		<!-- 这个配置使全局的映射器启用或禁用缓存 -->      
+        <setting name="cacheEnabled" value="true"/> 
+	</settings>
+	
+	<typeAliases>
+
+		<!-- 为实体类com.cn.pmqin.domain.User配置一个别名_User ,简单类型就是直接别名 跟java代码的类型一样 -->
+		<typeAlias alias="Role" type="com.cn.pmqin.domain.UserRole" />
+		<!-- 为com.cn.pmqin.domain包下的所有实体类配置别名，MyBatis默认的设置别名的方式就是去除类所在的包后的简单的类名 
+			比如com.cn.pmqin.domain.User这个实体类的别名就会被设置成User: -->
+		<package name="com.cn.pmqin.domain" />
+	</typeAliases>
+
+
+
+	<!-- development : 开发模式 work : 工作模式 -->
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<!-- 配置数据库连接信息 -->
+			<dataSource type="POOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${name}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+		</environment>
+	</environments>
+
+	<mappers>
+	   <!-- 注册userMapper.xml文件， userMapper.xml位于com.cn.pmqin.mapping这个包下，所以resource写成com/cn/pmqin/mapping/userMapper.xml -->
+       <!-- 		第一种全部使用配置文件，不需要接口 -->
+		<mapper resource="com/cn/pmqin/mapping/UserMapper.xml" /> 
+       <!--  第二种注解方式 ，注册 DAO 的UserMapper直接写在注解上面， 不需要UserMapper.xml -->
+		<mapper class="com.cn.pmqin.dao.UserMapper" />
+		<!-- <package name="com.cn.pmqin.domain" /> -->
+		<!--第三种方式 也就是企业级一般的使用方式 -->
+		<mapper resource="com/cn/pmqin/mapping/UserMapper1.xml" /> 
+		<mapper resource="com/cn/pmqin/mapping/UserMapper2.xml" />
+	</mappers>
+
+</configuration>

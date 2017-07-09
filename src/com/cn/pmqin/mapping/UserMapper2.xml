@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 为这个mapper指定一个唯一的namespace，namespace的值习惯上设置成包名+sql映射文件名, 生成的SQL映射文件，这样就能够保证namespace的值是唯一的  -->
+<mapper namespace="com.cn.pmqin.mapping.UserMapper2">
+    <!-- 在select标签中编写查询的SQL语句， 设置select标签的id属性为getUser，id属性值必须是唯一的，不能够重复
+                   使用parameterType属性指明查询时使用的参数类型，resultType属性指明查询返回的结果集类型
+     resultType="com.cn.pmqin.domain.User"就表示将查询结果封装成一个User类的对象返回User类就是users表所对应的实体类
+     -->
+     
+     <!--  方式一：关联查询：使用嵌套结果映射来处理重复的联合结果的子集  根据id查询得到一个user对象-->
+     <select id="getUser0" parameterType="int"  resultMap="UserResultMap0">
+          select * from User u, UserRole r,Order1 o where u.Role_ID=r.R_ID and u.id=o.u_id and u.id=#{id}   
+     </select>
+  
+     
+    
+   <resultMap type="User" id="UserResultMap0">
+    <id property="id" column="ID"/>       
+     <result property="roleId" column="Role_ID"/> 
+   <!-- association标签来解决一对一的关联查询 -->
+   <!--  也可以这样  <association property="userRole" column="R_ID" javaType="Role" resultMap="RoleResult"/> -->
+     <association property="userRole" javaType="Role">  <!-- 定义了别名就用使用，不然报错 -->
+             <id property="id" column="R_ID"/>  <!-- 用id属性来映射主键字段 -->
+             <result property="name" column="R_Name"/> <!-- 用result属性来映射非主键字段 -->
+     </association>
+      <!-- ofType指定Orders集合中的对象类型 -->
+
+<!--  也可以这样  <collection property="orders" ofType="Order" resultMap="ordersResult" columnPrefix="post_"/> -->
+        <collection property="orders" ofType="Order">
+            <id property="id" column="OD_ID"/>
+            <result property="name" column="OD_Name"/>
+        </collection>
+  </resultMap> 
+<!--   映射可以 重用 -->
+<!-- <resultMap id="RoleResult" type="Role"> -->
+<!--    <id property="id" column="R_ID"/>  用id属性来映射主键字段 -->
+<!--    <result property="name" column="R_Name"/> 用result属性来映射非主键字段 -->
+<!-- </resultMap> -->
+<!--  <resultMap id="ordersResult" type="Post"> -->
+<!--   <id property="id" column="id"/> -->
+<!--   <result property="subject" column="subject"/> -->
+<!--   <result property="body" column="body"/> -->
+<!-- </resultMap>  -->
+  
+<!-- 方式二：子查询：通过执行另外一个SQL映射语句来返回预期的复杂类型 -->
+       <!--根据id查询得到一个order对象，使用这个查询是可以正常查询到我们想要的结果的，
+                       这是因为我们通过<resultMap>  映射实体类属性名和表的字段名一一对应关系 -->
+<!--        MyBatis 能延迟加载这样的查询就是一个好处,因此你可以分散这些语句同时运行的消 耗。然而, -->
+<!--        如果你加载一个列表,之后迅速迭代来访问嵌套的数据,你会调用所有的延迟加 载,这样的行为可能是很糟糕的 -->
+  <select id="getUser" parameterType="int" resultMap="UserResultMap">
+          select * from user where id=#{id}
+  </select>
+      
+  <resultMap type="User" id="UserResultMap"> 
+     <id property="id" column="ID"/>       
+     <result property="roleId" column="Role_ID"/>          
+     <association property="userRole" column="Role_ID" select="getUserRole"/>
+     <!-- 可以忽略javaType="ArrayList" 因为 MyBatis 在很多情况下会为你算出来。 -->
+     <collection property="orders" ofType="Order"  column="ID" select="getOrders"></collection>
+  </resultMap> 
+  
+   <!-- 根据id查询得到一个order对象，使用这个查询是可以正常查询到我们想要的结果的   别名称-->
+   <select id="getUserRole" parameterType="int" resultType="Role">
+         SELECT R_ID id, R_Name name FROM UserRole WHERE R_ID=#{id}
+   </select>
+   <select id="getOrders" parameterType="int" resultType="Order">
+        SELECT OD_ID id, OD_Name name FROM Order1 WHERE U_ID=#{id}
+   </select>
+     
+<!--一对一关联查询总结 MyBatis中使用association标签来解决一对一的关联查询，
+用id属性来映射主键字段或者叫唯一标识 ，用result属性来映射非主键字段
+property:对象属性的名称
+javaType:对象属性的类型
+ofType 也是表示返回类型 一對多  内部为了和关联association进行区别
+column:所对应的外键字段名称
+select:使用另一个查询封装的结果 
+一对多的collection column="ID"是主键字段名称 不分大小写
+-->
+
+
+   <!-- 存储过程的调用 -->
+   <select id="getUsers" parameterMap="getUsersbyAge" statementType="CALLABLE" resultMap="UserResultMap" >
+          CALL getUsersbyAge(?)
+   </select>
+<!--    存储过程相关http://www.cnblogs.com/cxxjohnson/p/5965194.html -->
+   <parameterMap type="java.util.Map" id="getUsersbyAge">
+         <parameter property="AgeNUM" mode="IN" jdbcType="INTEGER"/>
+<!--       如果有返回值就这样   <parameter property="usercount" mode="OUT" jdbcType="INTEGER"/> -->
+   </parameterMap>
+</mapper>

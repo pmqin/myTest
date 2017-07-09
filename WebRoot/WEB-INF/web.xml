@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  <display-name>myTest</display-name>
+  <servlet>
+    <servlet-name>UserServlet</servlet-name>
+    <servlet-class>com.cn.pmqin.controller.UserServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UserServlet</servlet-name>
+    <url-pattern>/index</url-pattern>
+  </servlet-mapping>
+</web-app>
+
+<!-- Servlet何时被创建： -->
+
+<!-- 　　1，默认情况下，当WEB客户第一次请求访问某个Servlet的时候，WEB容器将创建这个Servlet的实例。 -->
+
+<!-- 　　2，当web.xml文件中如果<servlet>元素中指定了<load-on-startup>子元素时，Servlet容器在启动web服务器时，将按照顺序创建并初始化Servlet对象。 -->
+
+<!-- 　　注意：在web.xml文件中，某些Servlet只有<serlvet>元素，没有<servlet-mapping>元素，这样我们无法通过url的方式访问这些Servlet，这种Servlet通常会在<servlet>元素中配置一个<load-on-startup>子元素，让容器在启动的时候自动加载这些Servlet并调用init()方法，完成一些全局性的初始化工作。 -->
+
+
+
+<!-- Web应用何时被启动： -->
+
+<!-- 　　1，当Servlet容器启动的时候，所有的Web应用都会被启动 -->
+
+<!-- 　　2，控制器启动web应用 -->
